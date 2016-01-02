@@ -39,9 +39,10 @@ def ingest_csv(db, csvpath):
 
 def all_trips(db):
     cur = db.cursor()
-    return cur.execute("""select * from compass
-                          where "transaction" != "Missing Tap out"
-                          order by datetime""")
+    for row in cur.execute("""select * from compass
+                              where "transaction" != "Missing Tap out"
+                              order by datetime"""):
+        yield row
 
 
 if __name__ == "__main__":
