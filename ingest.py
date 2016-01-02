@@ -21,6 +21,12 @@ def create_table(db):
                   "product" text,
                   "amount" int)""")
 
+def create_geo_table(db):
+    db.execute("""create table locations (
+                  "location" text,
+                  "lat" decimal,
+                  "long" decimal)""")
+
 def ingest_csv(db, csvpath):
     parseDateTime = lambda s: datetime.strptime(s, "%b-%d-%Y %I:%M %p")
 
