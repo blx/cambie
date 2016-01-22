@@ -1,2 +1,3 @@
 *.csv
 compass.sqlite3
+credentials.py
