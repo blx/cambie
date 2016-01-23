@@ -12,8 +12,14 @@ def connect(dbpath):
     db.create_function("REGEXP", 2, _sqlite_regexp)
     return db
 
+def create_table_once(db, ddl):
+    try:
+        db.execute(ddl)
+    except sqlite3.OperationalError:
+        pass
+
 def csv_rows(csvpath, skip_rows=1):
-    "Returns a generator of row lists parsed from csvpath."
+    "Returns a generator of rows (lists of fields) parsed from CSV at csvpath."
     with open(csvpath) as f:
         reader = csv.reader(f)
         if skip_rows:
