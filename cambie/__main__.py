@@ -73,7 +73,9 @@ def geocode_locations(db):
     db.commit()
 
 def ingest_csv(db, csvpath):
-    "Loads trip history from CSV into SQLite."
+    """Loads trip history from CSV into SQLite. Note: idempotent but unintelligent:
+    if you pass in a CSV that's already been ingested, the DB will be unchanged
+    but we'll still traverse the entire file."""
     parse_datetime = lambda s: datetime.strptime(s, "%b-%d-%Y %I:%M %p")
 
     def rowfn(row):
@@ -81,6 +83,7 @@ def ingest_csv(db, csvpath):
         return row
 
     cur = db.cursor()
+    # Insert if new; skip and ignore constraint violation if already exists
     cur.executemany("""insert or ignore into trip
                        ("datetime", "location", "transaction", "product", "amount")
                        values (?, ?, ?, ?, ?)""",
@@ -108,8 +111,10 @@ if __name__ == '__main__':
     import argparse
 
     def cmd(fn, args=None):
+        """Wrapper function to supply DB connection and appropriate arguments
+        to subcommands."""
         return lambda ns: fn(connect(DB),
-                             **{k: vars(ns)[k]
+                             **{k: getattr(ns, k)
                                 for k in args or []})
 
     argparser = argparse.ArgumentParser(prog='cambie')
