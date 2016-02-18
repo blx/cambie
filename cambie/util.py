@@ -8,7 +8,7 @@ def _sqlite_regexp(pattern, s):
     return re.search(pattern, s) is not None
 
 def connect(dbpath):
-    db = sqlite3.connect(dbpath)
+    db = sqlite3.connect(dbpath, detect_types=sqlite3.PARSE_DECLTYPES)
     db.create_function("REGEXP", 2, _sqlite_regexp)
     return db
 

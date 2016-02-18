@@ -23,12 +23,14 @@ get_bus_stop = partial(translink.get_stop, creds.API_KEY)
 DDL = {
     'trip':       """create table "trip" (
                        "id" int primary key,
-                       "datetime" int,
+                       "datetime" text,
+                       "date" text,
+                       "time" text,
                        "location" text,    -- like "50268" or "Waterfront Stn"
                        "transaction" text,
                        "product" text,
                        "amount" int,
-                       unique("datetime", "location", "transaction"))""",
+                       unique("date", "time", "location", "transaction"))""",
     'location':   """create table "location" (
                        "id" int primary key,
                        "location" text,    -- like "50187"
@@ -76,17 +78,21 @@ def ingest_csv(db, csvpath):
     """Loads trip history from CSV into SQLite. Note: idempotent but unintelligent:
     if you pass in a CSV that's already been ingested, the DB will be unchanged
     but we'll still traverse the entire file."""
-    parse_datetime = lambda s: datetime.strptime(s, "%b-%d-%Y %I:%M %p")
+    def parse_datetime(s):
+        dt = datetime.strptime(s, "%b-%d-%Y %I:%M %p")
+        # Split into date (2016-02-15) and time (09:31) components for sqlite.
+        # (Compass card datetime resolution is in minutes)
+        return [str(dt), str(dt.date()), str(dt.time())[:5]]
 
     def rowfn(row):
-        row[0] = parse_datetime(row[0])
+        row = parse_datetime(row[0]) + row[1:]
         return row
 
     cur = db.cursor()
     # Insert if new; skip and ignore constraint violation if already exists
     cur.executemany("""insert or ignore into trip
-                       ("datetime", "location", "transaction", "product", "amount")
-                       values (?, ?, ?, ?, ?)""",
+                       ("datetime", "date", "time", "location", "transaction", "product", "amount")
+                       values (?, ?, ?, ?, ?, ?)""",
                     imap(rowfn, csv_rows(csvpath)))
     db.commit()
 
