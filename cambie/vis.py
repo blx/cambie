@@ -1,8 +1,4 @@
-from operator import itemgetter
-
 import matplotlib.pyplot as plt
-
-from .libclj import juxtmap, comp, first, second
 
 
 def _hist(bins, weights):
@@ -21,7 +17,5 @@ def trips_by_hour(db):
                                   join "location" l on t."location" = l."location"
                                   group by hour
                                   order by n desc""")
-    bins, weights = juxtmap([first, second],
-                            data)
-
+    bins, weights = zip(*data)
     return _hist(bins, weights)

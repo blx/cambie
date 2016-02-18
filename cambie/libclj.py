@@ -1,14 +1,21 @@
 try:
+    # Python 2
     basestring
-except NameError:
-    # python3; ensure we get a list out of zip
-    __zip = zip
-    def zip(*colls):
-        return list(__zip(*colls))
+    __PY3 = False
 
+    items = dict.iteritems
+
+except NameError:
+    # Python 3; ensure we get lists instead of generators
+    __PY3 = True
+
+    from functools import reduce
+    items = dict.items
+
+from itertools import chain
 from operator import itemgetter
 
-__all__ = ('identity', 'first', 'second', 'comp', 'juxt', 'juxtmap')
+__all__ = ('identity', 'first', 'second', 'merge', 'comp', 'juxt')
 
 
 def identity(x):
@@ -17,6 +24,12 @@ def identity(x):
 
 first = itemgetter(0)
 second = itemgetter(1)
+
+def merge(*dicts):
+    """Returns the dict obtained by shallowing merging the `dicts` left-to-right.
+    merge :: {}
+    merge *dicts :: *{} -> {}"""
+    return dict(chain(*(items(d) for d in dicts if d)))
 
 def comp(*fns):
     """Returns the right-to-left composition of the `fns`.
@@ -45,10 +58,3 @@ def juxt(*fns):
     def _juxted(*a, **kw):
         return [f(*a, **kw) for f in fns]
     return _juxted
-
-def juxtmap(fns, *colls):
-    """Returns [f(coll1, coll2, ...)[0],
-                f(coll1, coll2, ...)[1],
-                ...].
-    Traverses the colls simultaneously and only once."""
-    return zip(*map(juxt(*fns), *colls))
