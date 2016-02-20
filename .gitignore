@@ -1,4 +1,5 @@
 *.csv
 compass.sqlite3
 credentials.py
-env
+.env
+env.json
