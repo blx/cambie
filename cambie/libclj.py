@@ -15,7 +15,7 @@ except NameError:
 from itertools import chain
 from operator import itemgetter
 
-__all__ = ('identity', 'first', 'second', 'merge', 'comp', 'juxt')
+__all__ = ('identity', 'first', 'second', 'merge', 'comp', 'juxt', 'items')
 
 
 def identity(x):

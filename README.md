@@ -11,3 +11,6 @@ Tools to load Compass Card usage history into SQLite.
     Geocoded 58501 (WB W BROADWAY FS CAMBIE ST) to 49.263340, -123.115720
     Geocoded 50852 (WB W HASTINGS ST FS RICHARDS ST) to 49.284470, -123.112450
     ...
+
+    $ python -m cambie plot_trips_by_hour
+    (histogram shown)

@@ -115,24 +115,43 @@ def load_trips(db, csv_dir):
 
 if __name__ == '__main__':
     import argparse
+    from collections import namedtuple
 
-    def cmd(fn, args=None):
+    from .libclj import items
+    from . import vis
+
+    def plot_trips_by_hour(db):
+        import matplotlib.pyplot as plt
+        fig = vis.trips_by_hour(db)
+        plt.show()
+
+    def wrap_cmd(fn, args=None):
         """Wrapper function to supply DB connection and appropriate arguments
         to subcommands."""
         return lambda ns: fn(connect(DB),
                              **{k: getattr(ns, k)
                                 for k in args or []})
 
+    Command = namedtuple('Command', ['action', 'args'])
+
+    def load_cmds(argparser, cmds):
+        _cmds = argparser.add_subparsers()
+
+        for name, [action, args] in items(cmds):
+            cmd = _cmds.add_parser(name)
+            args = args or []
+            for a in args:
+                cmd.add_argument(a)
+            cmd.set_defaults(func=wrap_cmd(action, args))
+
+    commands = {
+        'load_trips':         Command(load_trips, ['csv_dir']),
+        'geocode_stops':      Command(geocode_locations, []),
+        'plot_trips_by_hour': Command(plot_trips_by_hour, []),
+    }
+
     argparser = argparse.ArgumentParser(prog='cambie')
-    cmds = argparser.add_subparsers()
-
-    cmd_load_trips = cmds.add_parser('load_trips')
-    cmd_load_trips.add_argument('csv_dir')
-    cmd_load_trips.set_defaults(func=cmd(load_trips, ['csv_dir']))
-
-    cmd_geocode_stops = cmds.add_parser('geocode_stops')
-    cmd_geocode_stops.set_defaults(func=cmd(geocode_locations))
+    load_cmds(argparser, commands)
 
     args = argparser.parse_args()
-
     args.func(args)
