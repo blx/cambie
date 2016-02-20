@@ -27,4 +27,3 @@ def csv_rows(csvpath, skip_rows=1):
                 reader.next()
         for row in reader:
             yield row
-

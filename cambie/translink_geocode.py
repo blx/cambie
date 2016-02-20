@@ -1,4 +1,4 @@
-from .libclj import merge
+from .prelude import merge
 
 import requests
 

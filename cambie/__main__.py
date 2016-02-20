@@ -5,10 +5,10 @@ Compass Card site into an SQLite database."""
 
 from __future__ import print_function
 
-from functools import partial
-from itertools import imap
 import time
 from datetime import datetime
+
+from .prelude import *
 
 from . import credentials as creds
 from .util import csv_rows, connect, create_table_once
@@ -56,7 +56,7 @@ def geocode_locations(db):
                    left outer join "location" l on l."location" = t."location"
                    where l."location" is null
                    and t."location" regexp '[0-9]+'""")
-    locs = [row[0] for row in cur]
+    locs = mapv(first, cur)
 
     for i, loc in enumerate(locs):
         geo = get_bus_stop(loc)
@@ -92,8 +92,8 @@ def ingest_csv(db, csvpath):
     # Insert if new; skip and ignore constraint violation if already exists
     cur.executemany("""insert or ignore into trip
                        ("datetime", "date", "time", "location", "transaction", "product", "amount")
-                       values (?, ?, ?, ?, ?, ?)""",
-                    imap(rowfn, csv_rows(csvpath)))
+                       values (?, ?, ?, ?, ?, ?, ?)""",
+                    map(rowfn, csv_rows(csvpath)))
     db.commit()
 
 def all_trips(db):
@@ -117,7 +117,6 @@ if __name__ == '__main__':
     import argparse
     from collections import namedtuple
 
-    from .libclj import items
     from . import vis
 
     def plot_trips_by_hour(db):

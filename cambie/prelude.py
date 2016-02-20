@@ -3,19 +3,29 @@ try:
     basestring
     __PY3 = False
 
+    mapv = map
+    from itertools import imap as map
+    reduce = reduce
     items = dict.iteritems
 
 except NameError:
     # Python 3; ensure we get lists instead of generators
     __PY3 = True
 
+    def mapv(f, *colls):
+        return list(map(f, *colls))
+    map = map
     from functools import reduce
     items = dict.items
 
-from itertools import chain
+from functools import partial
+
+# Internal imports
+from itertools import chain, islice
 from operator import itemgetter
 
-__all__ = ('identity', 'first', 'second', 'merge', 'comp', 'juxt', 'items')
+__all__ = ('identity', 'first', 'second', 'merge', 'comp', 'thread', 'juxt', 'items',
+           'reduce', 'partial', 'map', 'mapv', 'take', 'rest', 'drop')
 
 
 def identity(x):
@@ -24,6 +34,15 @@ def identity(x):
 
 first = itemgetter(0)
 second = itemgetter(1)
+
+def take(n, coll):
+    return islice(coll, 0, n)
+
+def rest(coll):
+    return islice(coll, 1, None)
+
+def drop(n, coll):
+    return islice(coll, n, None)
 
 def merge(*dicts):
     """Returns the dict obtained by shallowing merging the `dicts` left-to-right.
@@ -47,6 +66,14 @@ def comp(*fns):
             x = f(x)
         return x
     return _comped
+
+def thread(x, *fns):
+    """Threads `x` left-to-right through the `fns`, returning the final result.
+    thread x :: a -> a
+    thread x, *fns :: a_0, *(a_i -> a_i+1) -> a_n"""
+    for f in fns:
+        x = f(x)
+    return x
     
 def juxt(*fns):
     """Returns the juxtaposition of the `fns`.
