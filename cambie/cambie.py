@@ -1,5 +1,3 @@
-#!/usr/bin/env python2
-
 """Loads CSVs of your travel history exported from TransLink BC's
 Compass Card site into an SQLite database."""
 
@@ -11,7 +9,7 @@ from datetime import datetime
 from .prelude import *
 
 from . import credentials as creds
-from .util import csv_rows, connect, create_table_once
+from .util import csv_rows, create_table_once
 from . import translink_geocode as translink
 from . import vis
 
