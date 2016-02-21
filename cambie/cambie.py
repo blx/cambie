@@ -6,15 +6,15 @@ from __future__ import print_function
 import time
 from datetime import datetime
 
-from .prelude import *
-
-from . import credentials as creds
-from .util import csv_rows, create_table_once
+from . import env
 from . import translink_geocode as translink
 from . import vis
 
+from .prelude import *
+from .util import csv_rows, create_table_once
+
 info = print
-get_bus_stop = partial(translink.get_stop, creds.API_KEY)
+get_bus_stop = partial(translink.get_stop, env['TRANSLINK_API_KEY'])
 
 DDL = {
     'trip':       """create table "trip" (

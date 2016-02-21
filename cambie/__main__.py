@@ -16,9 +16,6 @@ cli = argh('cambie', commands)
 
 
 if __name__ == '__main__':
-    import json
-
-    with open('env.json') as fp:
-        env = json.load(fp)
+    from . import env
 
     cli(env)
