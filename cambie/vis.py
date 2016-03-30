@@ -30,8 +30,32 @@ def trips_by_hour(db):
                                   order by hour asc""")
     bins, weights = zip(*data)
     fig = _bar(bins, weights)
-    fig.axes[0].set_xlabel('Time of day')
+    fig.axes[0].set_xlabel('Time of day (hour)')
     fig.axes[0].set_ylabel('Tap-in count')
+    return fig
+
+def trips_by_5min(db):
+    data = db.cursor().execute("""
+        select
+            cast(substr(t."time", 0, 3) as int) * 60 + cast(substr(t."time", 4, 3) as int) minutes,
+            count(*) n
+        from "trip" t
+        join "location" l on t."location" = l."location"
+        group by minutes
+        order by minutes asc
+    """)
+    bins, weights = zip(*data)
+
+    bins_per_hour = 3
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    hist = ax.hist(bins, bins=24*bins_per_hour, weights=weights)
+    ax.grid(True)
+
+    fig.axes[0].set_xlabel('Time of day (min)')
+    fig.axes[0].set_ylabel('Tap-in count')
+    fig.axes[0].set_xlim(left=0, right=60*24)
     return fig
 
 def _directions_by_hour(db, hour):
