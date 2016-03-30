@@ -5,7 +5,7 @@ from itertools import chain
 from .prelude import items, juxt, thread, partial as p
 
 Command = namedtuple('Command', ['action', 'args', 'deps'])
-Command.__new__.__defaults__ = ((), ())
+Command.__new__.__defaults__ =  (              (),     ())
 
 def with_deps(f, deps=None):
     """baby ur a **star"""

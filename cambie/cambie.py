@@ -75,7 +75,7 @@ def ingest_csv(db, csvpath):
     if you pass in a CSV that's already been ingested, the DB will be unchanged
     but we'll still traverse the entire file."""
     def parse_datetime(s):
-        dt = datetime.strptime(s, "%b-%d-%Y %I:%M %p")
+        dt = datetime.strptime(s, '%b-%d-%Y %I:%M %p')
         # Split into date (2016-02-15) and time (09:31) components for sqlite.
         # (Compass card datetime resolution is in minutes)
         return [str(dt), str(dt.date()), str(dt.time())[:5]]

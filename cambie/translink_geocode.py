@@ -2,11 +2,11 @@ from .prelude import merge
 
 import requests
 
-API_URL = "http://api.translink.ca/rttiapi/v1/"
+API_URL = 'http://api.translink.ca/rttiapi/v1/'
 
 def _get(api_key, endpoint, params=None):
     return requests.get(API_URL + endpoint,
-                        headers={"Accept": "application/JSON"},
+                        headers={'Accept': 'application/JSON'},
                         params=merge({'apikey': api_key},
                                      params)).json()
 
