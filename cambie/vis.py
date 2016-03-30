@@ -33,3 +33,33 @@ def trips_by_hour(db):
     fig.axes[0].set_ylabel('Tap-in count')
     return fig
 
+def _directions_by_hour(db, hour):
+    time_lo = '%02d:30' % ((hour - 1) % 24)
+    time_hi = '%02d:29' % hour
+    data = db.cursor().execute("""
+        select
+            coalesce(sum(case when substr(z.name, 0, 3) == 'WB' then z.n end), 0) n_WB,
+            coalesce(sum(case when substr(z.name, 0, 3) == 'EB' then z.n end), 0) n_EB,
+            coalesce(sum(case when substr(z.name, 0, 3) == 'NB' then z.n end), 0) n_NB,
+            coalesce(sum(case when substr(z.name, 0, 3) == 'SB' then z.n end), 0) n_SB,
+            coalesce(sum(case when substr(z.name, 0, 4) == 'UBC' then z.n end), 0) n_UBC,
+            coalesce(sum(case when z.name is null then z.n else 0 end), 0) n_skytrain
+        from (
+            select t."location", l."name", substr(t."time", 0, 6) tm, count(*) n
+            from "trip" t
+            left outer join "location" l on t."location" = l."location"
+            where
+                (t."transaction" like 'Tap in%'
+                 or t."transaction" like 'Transfer at%')
+                and (?) <= tm and tm <= (?)
+            group by t."location"
+            order by n desc
+        ) z""", [time_lo, time_hi])
+    return data
+
+def directions_by_hour(db):
+    hours = list(range(0, 24))
+    dirs = map(comp(first,
+                    partial(_directions_by_hour, db)),
+               hours)
+    return _bar(hours, dirs)
