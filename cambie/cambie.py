@@ -7,13 +7,13 @@ import time
 from datetime import datetime
 
 from . import env
+from . import info
 from . import translink_geocode as translink
 from . import vis
 
 from .prelude import *
 from .util import csv_rows, create_table_once
 
-info = print
 get_bus_stop = partial(translink.get_stop, env['TRANSLINK_API_KEY'])
 
 DDL = {
