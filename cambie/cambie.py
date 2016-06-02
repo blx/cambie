@@ -99,13 +99,10 @@ def all_trips(db):
                               order by datetime"""):
         yield row
 
-def load_trips(db, csv_dir):
-    import glob
-    import os
-
+def load_trips(db, csv_files):
     create_table_once(db, DDL['trip'])
 
-    for csvf in glob.iglob(os.path.join(csv_dir, '*.csv')):
+    for csvf in csv_files:
         info('Ingesting trip history from %s' % csvf)
         ingest_csv(db, csvf)
 
