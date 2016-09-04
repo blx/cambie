@@ -48,7 +48,7 @@ def merge(*dicts):
     """Returns the dict obtained by shallowing merging the `dicts` left-to-right.
     merge :: {}
     merge *dicts :: *{} -> {}"""
-    return dict(chain(*(items(d) for d in dicts if d)))
+    return dict(chain.from_iterable(items(d) for d in dicts if d))
 
 def comp(*fns):
     """Returns the right-to-left composition of the `fns`.
